@@ -154,7 +154,7 @@ class RAGKnowledgePromptAgent:
         Returns:
         list: List of dictionaries containing chunk metadata.
         """
-        separator = "\n"
+        separator = " "
         text = re.sub(r"\s+", " ", text).strip()
 
         if len(text) <= self.chunk_size:
@@ -164,10 +164,10 @@ class RAGKnowledgePromptAgent:
 
         while start < len(text):
             end = min(start + self.chunk_size, len(text))
-            if separator in text[start:end]:
-                end = (
-                    start + text[start:end].rindex(separator) + len(separator)
-                )
+            if end < len(text) and separator in text[start:end]:
+                idx = text[start:end].rindex(separator)
+                if idx > self.chunk_overlap:
+                    end = start + idx + len(separator)
 
             chunks.append(
                 {
@@ -179,7 +179,9 @@ class RAGKnowledgePromptAgent:
                 }
             )
 
-            start = end - self.chunk_overlap
+            if end >= len(text):
+                break
+            start = max(end - self.chunk_overlap, start + 1)
             chunk_id += 1
 
         with open(
@@ -232,7 +234,7 @@ class RAGKnowledgePromptAgent:
             api_key=self.openai_api_key,
         )
         response = client.chat.completions.create(
-            model="gpt-5.4-nano",
+            model="gpt-3.5-turbo",
             messages=[
                 {
                     "role": "system",
