@@ -1,0 +1,24 @@
+[tool.ruff]
+line-length = 79
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle (PEP 8)
+    "W505",     # docstring length check
+    "F",        # pyflakes (real bugs)
+    "I",        # isort (import ordering)
+    "N",        # pep8-naming
+    # "D",        # pydocstyle (PEP 257)
+    "UP",       # pyupgrade
+    "B",        # bugbear
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 72
+
+[tool.ruff.format]
+docstring-code-format = true
