@@ -29,5 +29,4 @@ evaluation_agent = EvaluationAgent(
     openai_api_key, persona, evaluation_criteria, knowledge_agent, 10
 )
 
-# TODO: 4 - Evaluate the prompt and print the response from the EvaluationAgent
 print(evaluation_agent.evaluate(prompt))
