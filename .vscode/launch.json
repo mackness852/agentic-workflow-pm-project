@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "python",
+            "type": "debugpy",
             "request": "attach",
             "name": "Attach to Python",
             "connect": {
