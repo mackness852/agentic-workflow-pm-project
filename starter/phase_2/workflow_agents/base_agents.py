@@ -43,11 +43,14 @@ class AugmentedPromptAgent:
             api_key=self.openai_api_key,
             base_url="https://openai.vocareum.com/v1",
         )
+        system_prompt = (
+            f"{self.persona}. Forget all previous conversational context."
+        )
 
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": self.persona},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": input_text},
             ],
             temperature=0,
@@ -263,7 +266,7 @@ class EvaluationAgent:
         openai_api_key,
         persona,
         evaluation_criteria,
-        worker_agent: KnowledgeAugmentedPromptAgent,
+        worker_agent: KnowledgeAugmentedPromptAgent | AugmentedPromptAgent,
         max_interactions,
     ):
         self.openai_api_key = openai_api_key

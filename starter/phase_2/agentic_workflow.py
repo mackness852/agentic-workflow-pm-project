@@ -1,11 +1,11 @@
 # agentic_workflow.py
 
-# from workflow_agents.base_agents import ActionPlanningAgent, KnowledgeAugmentedPromptAgent, EvaluationAgent, RoutingAgent
 import os
 
 from dotenv import load_dotenv
 from workflow_agents.base_agents import (
     ActionPlanningAgent,
+    AugmentedPromptAgent,
     EvaluationAgent,
     KnowledgeAugmentedPromptAgent,
     RoutingAgent,
@@ -63,13 +63,14 @@ program_manager_agent = KnowledgeAugmentedPromptAgent(
 )
 
 # Program Manager - Evaluation Agent
-persona_program_manager_eval = "You are an evaluation agent that checks the answers of other worker agents."
+persona_program_manager_eval = "You are an evaluation agent that checks the answers of other worker agents and ensure they adhere to any constraints."
 program_manager_eval_criteria = (
-    "The answer should be product features that follow the following structure: "
-    "Feature Name: A clear, concise title that identifies the capability\n"
-    "Description: A brief explanation of what the feature does and its purpose\n"
-    "Key Functionality: The specific capabilities or actions the feature provides\n"
-    "User Benefit: How this feature creates value for the user"
+    "The answer should be product features that follow the below structure and only use the headings Feature Name, Description, Key Functionality and User Benefit: \n"
+    "Example:\n"
+    "Feature Name: [A clear, concise title that identifies the capability]\n"
+    "- Description: [A brief explanation of what the feature does and its purpose]\n"
+    "- Key Functionality: [The specific capabilities or actions the feature provides]\n"
+    "- User Benefit: [How this feature creates value for the user]\n"
 )
 program_mgr_eval_agent = EvaluationAgent(
     openai_api_key,
@@ -107,6 +108,41 @@ dev_engineer_eval_agent = EvaluationAgent(
     5,
 )
 
+
+# Delivery Manager - Knowledge Augmented Prompt Agent
+persona_delivery_manager = (
+    "Role: You are a software delivery manager. \n"
+    "Task: When given a list of User Stories, Product Features and Engineering"
+    "tasks, you summarise them into a markdown format for discussion"
+    "amongst the team.\n"
+    "Example:\n"
+    "# User Stories:\n"
+    "- User story 1\n"
+    "- User story 2...\n"
+    "# Features:\n"
+    "- Feature 1\n"
+    "- Feature 2...\n"
+    "# Engineering Tasks:\n"
+    "- Engineering task 1\n"
+    "- Engineering task 2...\n"
+)
+delivery_mgr_agent = AugmentedPromptAgent(
+    openai_api_key, persona_delivery_manager
+)
+
+# Delivery Manager - Evaluation Agent
+delivery_mgr_eval_persona = "You are an evaluation agent that checks the answers of other worker agents"
+delivery_mgr_eval_criteria = (
+    "The answer should be a markdown file with clear headings for User Stories, Features and Engineering Tasks."
+    "Under these headings should be all of the original list's details about those topics."
+)
+delivery_mgr_eval_agent = EvaluationAgent(
+    openai_api_key,
+    delivery_mgr_eval_persona,
+    delivery_mgr_eval_criteria,
+    delivery_mgr_agent,
+    5,
+)
 
 # Routing Agent
 agents = [
@@ -148,26 +184,14 @@ def developer_support_function(query):
 
 
 # Run the workflow
-
-print("\n*** Workflow execution started ***\n")
-# Workflow Prompt
-# ****
 workflow_prompt = "What would the development tasks for this product be?"
-# ****
-print(
-    f"Task to complete in this workflow, workflow prompt = {workflow_prompt}, product spec: {product_spec}"
-)
-
-print("\nDefining workflow steps from the workflow prompt")
-
 steps = action_agent.extract_steps_from_prompt(workflow_prompt)
-print(
-    f"==============\n==============\nSteps to complete: \n{str(steps)}==============\n==============\n"
-)
 completed_steps = []
 for step in steps:
-    # print(f"Attempting step: {step}")
     result = routing_agent.route_user_prompt(f"{step}")
-    # print(f"✅ Result from step {step}: \n{result}")
     completed_steps.append(result)
-print("\n".join(completed_steps))
+print(
+    delivery_mgr_eval_agent.evaluate(
+        delivery_mgr_agent.respond(str(completed_steps))
+    )["final_response"]
+)
