@@ -13,4 +13,4 @@ agent = DirectPromptAgent(openai_api_key)
 direct_agent_response = agent.respond(prompt)
 
 print(direct_agent_response)
-print("The knowledge source used is general knowledge from gpt-5.4-nano API")
+print("The knowledge source used is general knowledge from gpt-3.5-turbo API")

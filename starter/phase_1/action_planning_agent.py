@@ -38,8 +38,7 @@ knowledge = """
 """
 
 agent = ActionPlanningAgent(openai_api_key, knowledge)
-print(
-    agent.extract_steps_from_prompt(
-        "One morning I wanted to have scrambled eggs"
-    )
+result = agent.extract_steps_from_prompt(
+    "One morning I wanted to have scrambled eggs"
 )
+print(result)

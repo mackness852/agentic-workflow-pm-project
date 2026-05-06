@@ -14,7 +14,7 @@ class DirectPromptAgent:
         self.openai_api_key = openai_api_key
 
     def respond(self, prompt):
-        print(f"Prompt: {prompt}")
+        # # print(f"Prompt: {prompt}")
         client = OpenAI(
             api_key=self.openai_api_key,
             base_url="https://openai.vocareum.com/v1",
@@ -38,7 +38,7 @@ class AugmentedPromptAgent:
 
     def respond(self, input_text):
         """Generate a response using OpenAI API."""
-        print(f"Prompt: {input}")
+        # print(f"Prompt: {input}")
         client = OpenAI(
             api_key=self.openai_api_key,
             base_url="https://openai.vocareum.com/v1",
@@ -68,13 +68,13 @@ class KnowledgeAugmentedPromptAgent:
             f"Use only the following knowledge to answer, do not use your own knowledge: {knowledge}\n"
             "Answer the prompt based on this knowledge, not your own."
         )
-        print(
-            f"System prompt for KnowledgeAugmentedPromptAgent: {self.system_msg}"
-        )
+        # print(
+        # f"System prompt for KnowledgeAugmentedPromptAgent: {self.system_msg}"
+        # )
 
     def respond(self, input_text):
         """Generate a response using the OpenAI API."""
-        print(f"Prompt: {input}")
+        # print(f"Prompt: {input}")
         client = OpenAI(
             api_key=self.openai_api_key,
             base_url="https://openai.vocareum.com/v1",
@@ -284,17 +284,17 @@ class EvaluationAgent:
         instruction_response_message = ""
 
         for i in range(self.max_interactions):
-            print(f"\n--- Interaction {i + 1} ---")
+            # print(f"\n--- Interaction {i + 1} ---")
             iteration = i + 1
 
-            print(" Step 1: Worker agent generates a response to the prompt")
-            print(f"Prompt:\n{prompt_to_evaluate}")
+            # print(" Step 1: Worker agent generates a response to the prompt")
+            # print(f"Prompt:\n{prompt_to_evaluate}")
             response_from_worker = self.worker_agent.respond(
                 prompt_to_evaluate
             )
-            print(f"Worker Agent Response:\n{response_from_worker}")
+            # print(f"Worker Agent Response:\n{response_from_worker}")
 
-            print(" Step 2: Evaluator agent judges the response")
+            # print(" Step 2: Evaluator agent judges the response")
             eval_with_last_worker_output_prompt = (
                 f"Does the following answer: {response_from_worker}\n"
                 f"Meet this criteria: {self.evaluation_criteria}\n"
@@ -314,14 +314,14 @@ class EvaluationAgent:
             evaluation_response = evaluation_response.choices[
                 0
             ].message.content.strip()
-            print(f"Evaluator Agent Evaluation:\n{evaluation_response}")
+            # print(f"Evaluator Agent Evaluation:\n{evaluation_response}")
 
-            print(" Step 3: Check if evaluation is positive")
+            # print(" Step 3: Check if evaluation is positive")
             if evaluation_response.lower().startswith("yes"):
-                print("✅ Final solution accepted.")
+                # print("✅ Final solution accepted.")
                 break
             else:
-                print(" Step 4: Generate instructions to correct the response")
+                # print(" Step 4: Generate instructions to correct the response")
                 instruction_prompt = f"Provide instructions to fix an answer based on these reasons why it is incorrect: {evaluation_response}"
                 instruction_to_correct_response = (
                     client.chat.completions.create(
@@ -339,9 +339,9 @@ class EvaluationAgent:
                 instructions = instruction_to_correct_response.choices[
                     0
                 ].message.content.strip()
-                print(f"Instructions to fix:\n{instructions}")
+                # print(f"Instructions to fix:\n{instructions}")
 
-                print(" Step 5: Send feedback to worker agent for refinement")
+                # print(" Step 5: Send feedback to worker agent for refinement")
                 prompt_to_evaluate = (
                     f"The original prompt was: {initial_prompt}\n"
                     f"The response to that prompt was: {response_from_worker}\n"
@@ -388,7 +388,7 @@ class RoutingAgent:
             similarity = np.dot(input_emb, agent_emb) / (
                 np.linalg.norm(input_emb) * np.linalg.norm(agent_emb)
             )
-            print(similarity)
+            # print(similarity)
             if similarity > best_score:
                 best_agent = agent
                 best_score = similarity
@@ -396,9 +396,9 @@ class RoutingAgent:
         if best_agent is None:
             return "Sorry, no suitable agent could be selected."
 
-        print(
-            f"‼️‼️‼️‼️\n[Router] Best agent: {best_agent['name']} (score={best_score:.3f})\nPrompt: {user_input}\n‼️‼️‼️‼️"
-        )
+        # print(
+        # f"‼️‼️‼️‼️\n[Router] Best agent: {best_agent['name']} (score={best_score:.3f})\nPrompt: {user_input}\n‼️‼️‼️‼️"
+        # )
         return best_agent["func"](user_input)
 
 
@@ -415,7 +415,7 @@ class ActionPlanningAgent:
         Wrong example: These tasks are usually used:\n 1. Task 1\n 2. Task 2\n 3. Task 3"""
 
     def extract_steps_from_prompt(self, prompt):
-        print(f"Prompt: {prompt}")
+        # print(f"Prompt: {prompt}")
         client = OpenAI(
             base_url="https://openai.vocareum.com/v1",
             api_key=self.openai_api_key,
